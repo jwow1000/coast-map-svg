@@ -1,7 +1,7 @@
 import { getInfo } from "./helpers/fetch";
 import * as d3 from 'd3';
 
-const overlay = 'https://cdn.prod.website-files.com/66c4bc9a1e606660c92d9d24/66e2017e69d883bc68ca0b1d_Map-buttons.svg';
+const overlay = 'https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/66e892ee7dfc853dd1ed6600_Map-buttons.svg';
 
 // get the card from the DOM
 const card = document.querySelector(".card-coast");
@@ -47,64 +47,127 @@ d3.xml( overlay )
   .then( data => {
     // get the svg, overlay item
     const svg = document.body.querySelector("#overlay-item");
+    
+    // get the svg for d3
+    const d3Svg = d3.select("#overlay-item");
+    const svgHeight = d3Svg.node().getBBox().height;
+    console.log("svgHeight ", d3Svg)
+    // add slider to the bottom
+    const sliderScale = d3.scaleLinear()
+      .domain( [0, 4000] )
+      .range( [0, 600] );
+
+    d3Svg.append("line")
+      .attr("x1", sliderScale.range()[0])
+      .attr("x2", sliderScale.range()[1])
+      .attr("y1", svgHeight)
+      .attr("y2", svgHeight)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2);
+
+    // Append a draggable handle (circle)
+    const handle = d3Svg.append("circle")
+      .attr("cx", sliderScale(0))  // Initial position (for value 50)
+      .attr("cy", svgHeight)
+      .attr("r", 10)
+      .attr("fill", "blue")
+      .call(d3.drag()
+          .on("drag", function (event) {
+              let newX = event.x;
+
+              // Restrict movement within the slider range
+              if (newX < sliderScale.range()[0]) newX = sliderScale.range()[0];
+              if (newX > sliderScale.range()[1]) newX = sliderScale.range()[1];
+
+              d3.select(this).attr("cx", newX);
+
+              // Update value based on position
+              const value = sliderScale.invert(newX);
+              position = Math.round( value );
+              // console.log("the slider value: ", value)
+              updatePosition();
+              
+          })
+      );
+
 
     // get the info
     const info = getInfo();
     // console.log("check out the data from webflow: ", info);
 
+    // get the blur image
+    const blurLayer = svg.querySelector("#svg-blur-image");
+    
     // get the buttons
     const buttonsDom = svg.querySelectorAll(".button");
     const buttons = [...buttonsDom];
 
-    // get the blur image
-    const blurLayer = svg.querySelector("#svg-blur-image");
-    
-    // then add the event listeners
-    // detect when mouse is over item
-    info.forEach( ( element ) => {
-      // match the button to the info id
-      console.log("buttins", buttons)
+    // Loop through your 'info' array and attach the event handler to the matching buttons
+    info.forEach( (element) => {
+      // Match the button to the info id
       const match = buttons.find((e) => e.id === element.idMatch);
       
-      // console.log("match it: ", match);
-      // add the match to the info 
+      // Add the match to the element object 
       element.object = match;
-
-      match.addEventListener("mouseover", () => {
-        // console.log(`mouse over: ${element.id} `);
+    
+      // then add the event listeners
+      // detect when mouse is over item
+      info.forEach( ( element ) => {
+        // match the button to the info id
+        const match = buttons.find((e) => e.id === element.idMatch);
         
-        // get the id and replace the mask url
-        blurLayer.setAttribute('mask', `url(#mask_${match.id})`);
+        // add the match to the info 
+        element.object = match;
+  
+        match.addEventListener("mouseover", () => {
+          // remove mask before setting new one
+          blurLayer.removeAttribute('mask');
+  
+          // get the id and replace the mask url
+          blurLayer.setAttribute('mask', `url(#mask_${match.id})`);
+          
+          // make the blur layer visible, with an ease animation in css
+          blurLayer.style.opacity = "100";
+          
+          // make the card visible
+          card.style.display = "block"
+          card.innerText = element.body;
+  
+        });
         
-        // make the blur layer visible, with an ease animation in css
-        blurLayer.style.opacity = "100";
-        
-        // make the card visible
-        card.style.display = "block"
-        card.innerText = element.body;
-
+        match.addEventListener("mouseout", () => {
+          // console.log(`mouse off: ${match.id}`);
+          
+          // make the blur layer dissapear with an eas out in css
+          blurLayer.style.opacity = "0";
+  
+          // make the card dissapear
+          card.style.display = "none";
+  
+        }); 
       });
-      
-      match.addEventListener("mouseout", () => {
-        // console.log(`mouse off: ${match.id}`);
-        
-        // make the blur layer dissapear with an eas out in css
-        blurLayer.style.opacity = "0";
 
-        // make the card dissapear
-        card.style.display = "none";
-
-      }); 
+     
     });
+
+    
+    
+    
+ 
+    
     
     // scroll timeline elements
     const updatePosition = (delta) => {
       // normalize the scroll
       const normPos = position / maxScroll;
-      // make the date range
-      const date = (normPos * 5) + 2019;
-      // console.log("current scroll date: ", date)
       
+      // make the date range
+      const date = (normPos * 22) + 2000;
+      console.log("current scroll position:", position)
+      
+      // update the d3 slider
+      handle.attr("cx", `${ (position / 4000) * 600 }` )
+
       // get the buttons dates
       info.forEach( (item) => {
         // get just the year

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="buttons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+<svg id="overlay-item" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
   viewBox="0 0 878.87 655.59">
   <defs>
     <style>
@@ -270,6 +270,10 @@
       .cls-32 {
         stroke-dasharray: .5 1;
         stroke-width: .75px;
+      }
+
+      .button {
+        display: none;
       }
     </style>
     <symbol id="New_Symbol_4" viewBox="0 0 2.3 76.57">
@@ -1481,7 +1485,7 @@
       </g>
     </mask>
 
-    <mask>
+    <mask id="mask_net_repairing">
       <rect x="0" y="0" width="100%" height="100%" fill="white" />
       <g id="net_repairing">
         <polygon class="cls-30" points="228.91 368.04 243.36 368.04 249.21 379.12 223.77 379.12 228.91 368.04" />
@@ -1596,7 +1600,7 @@
   </defs>
   <!-- the rendered elements -->
   <!-- the blur overlay -->
-  <rect id="svg-blur-image" x="0" y="0" width="100%" height="100%" fill="rgb(255,255,255,0.7)" mask="none" />
+  <rect id="svg-blur-image" x="0" y="0" width="100%" height="100%" fill="rgb(255,255,255,0.7)" />
 
   <g id="bamboo_vana" class="button">
     <path class="cls-35"
