@@ -1,7 +1,7 @@
 import { getInfo } from "./helpers/fetch";
 import * as d3 from 'd3';
 
-const overlay = 'https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/66e892ee7dfc853dd1ed6600_Map-buttons.svg';
+const overlay = 'https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/66e9a6734d93e93d5576a2de_Map-buttons.svg';
 
 // get the card from the DOM
 const card = document.querySelector(".card-coast");
