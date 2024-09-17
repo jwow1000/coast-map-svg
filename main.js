@@ -29,6 +29,7 @@ function clip( delta ) {
   
 }
 
+
 // d3 get the SVG hosted in webflow's assets
 d3.xml( overlay )
   .then(data => {
@@ -36,10 +37,10 @@ d3.xml( overlay )
     const svg = data.documentElement; // extract the SVG
     svg.id = "overlay-item"; // Assign an ID 
     
-    // add the svg to the DOM
+    // get the svg container
     const svgContainer = document.querySelector(".svg-container-coast");
     
-    // console.log("the webflow container", svgContainer);
+    // add the svg
     svgContainer.appendChild( svg );
     
   })
@@ -51,7 +52,7 @@ d3.xml( overlay )
     // get the svg for d3
     const d3Svg = d3.select("#overlay-item");
     const svgHeight = d3Svg.node().getBBox().height;
-    console.log("svgHeight ", d3Svg)
+    
     // add slider to the bottom
     const sliderScale = d3.scaleLinear()
       .domain( [0, 4000] )
@@ -84,7 +85,6 @@ d3.xml( overlay )
               // Update value based on position
               const value = sliderScale.invert(newX);
               position = Math.round( value );
-              // console.log("the slider value: ", value)
               updatePosition();
               
           })
@@ -93,7 +93,6 @@ d3.xml( overlay )
 
     // get the info
     const info = getInfo();
-    // console.log("check out the data from webflow: ", info);
 
     // get the blur image
     const blurLayer = svg.querySelector("#svg-blur-image");
@@ -136,7 +135,6 @@ d3.xml( overlay )
         });
         
         match.addEventListener("mouseout", () => {
-          // console.log(`mouse off: ${match.id}`);
           
           // make the blur layer dissapear with an eas out in css
           blurLayer.style.opacity = "0";
@@ -163,7 +161,6 @@ d3.xml( overlay )
       
       // make the date range
       const date = (normPos * 22) + 2000;
-      console.log("current scroll position:", position)
       
       // update the d3 slider
       handle.attr("cx", `${ (position / 4000) * 600 }` )
