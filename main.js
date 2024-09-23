@@ -199,13 +199,13 @@ d3.xml( overlay )
       const now = Date.now();
       if (now - lastExecution >= throttleTime) {
         
-        event.preventDefault();  // Prevent page from scrolling
+        // event.preventDefault();  // Prevent page from scrolling
         const deltaY = startY - event.touches[0].clientY;
         updatePosition( clip( deltaY ) );
         lastExecution = now;
-        
+
       } 
-    }, {passive: false} );
+    });
   }
 
 )
