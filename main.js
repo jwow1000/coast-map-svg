@@ -150,10 +150,6 @@ d3.xml( overlay )
 
     
     
-    
- 
-    
-    
     // scroll timeline elements
     const updatePosition = (delta) => {
       // normalize the scroll
@@ -180,16 +176,36 @@ d3.xml( overlay )
       });
 
     };
+
     
     // Add event listeners for mouse, touch, or key inputs
     window.addEventListener('wheel', (event) => {
       updatePosition( clip( event.deltaY ) );
     });
     
-    window.addEventListener('touchmove', (event) => {
-      const deltaY = startY - event.touches[0].clientY;
-      updatePosition( clip( deltaY ) );
+    // capture start Y 
+    let lastExecution = 0;
+    const throttleTime = 100;  // Throttle time in milliseconds 
+    let startY = 0;
+    
+    window.addEventListener( 'touchstart', ( event ) => {
+      
+      startY = event.touches[0].clientY;
+
     });
+
+    // update the touch(mobile) move
+    window.addEventListener('touchmove', (event) => {
+      const now = Date.now();
+      if (now - lastExecution >= throttleTime) {
+        
+        event.preventDefault();  // Prevent page from scrolling
+        const deltaY = startY - event.touches[0].clientY;
+        updatePosition( clip( deltaY ) );
+        lastExecution = now;
+        
+      } 
+    }, {passive: false} );
   }
 
 )
