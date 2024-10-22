@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "copyfiles --flat dist/assets/main.js webflow",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "copyfiles": "^2.4.1",
     "vite": "^5.4.1",
     "vite-plugin-mkcert": "^1.17.6"
   },
