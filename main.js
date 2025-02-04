@@ -1,215 +1,174 @@
 import { getInfo } from "./helpers/fetch";
 import * as d3 from 'd3';
 
-const overlay = 'https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/66e9a6734d93e93d5576a2de_Map-buttons.svg';
+const overlay = "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a0ef1da7909405fe4c1f4f_MapA-dynamic-overlay.svg";
+const bg = "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/679a66ef42d3335f41be517a_mapA-static-bg.jpg"
 
-// get the card from the DOM
-const card = document.querySelector(".card-coast");
+// select the full-story item
+const theBody = document.querySelector("body");
 
-// scroll stuff
-const maxScroll = 4000;
-let position = 0;
+// card hover state: 0 = hover off, 1 = hovering, 2 = full-story mode
+let cardHoverState = 0; 
 
-// funciton to clip the scroll range
-function clip( delta ) {
-  const currentPos = position;
-  const nextStep = currentPos + delta;
- 
-  if( nextStep <= 0) {
-    if( position != 0) {
-      position = 0;
-    }
-  } else if( nextStep >= maxScroll) {
-    if( position != maxScroll) {
-      position = maxScroll;
-    }
-  } else {
-    position += delta;
-  }
-  
+const allCards = document.querySelectorAll(".card-coast");
+
+const fadeOutCards = () => {
+  allCards.forEach((item) => {
+    item.style.opacity = '0';
+  });
 }
 
+// detect if a touch device
+const isTouchDevice = 
+  'ontouchstart' in window || 
+  (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
+console.log("touchh?", isTouchDevice)
 
-// d3 get the SVG hosted in webflow's assets
 d3.xml( overlay )
   .then(data => {
+    // Get the root SVG element from the loaded file
+    const svg = data.documentElement;
+    svg.id = "overlay-item"; // Assign an ID for reference
     
-    const svg = data.documentElement; // extract the SVG
-    svg.id = "overlay-item"; // Assign an ID 
+    // Select the SVG element using D3 to use D3 methods
+    const d3Svg = d3.select(svg);
+
+    // Insert the PNG as an <image> element at the start of the SVG
+    d3Svg.insert("image", ":first-child") // Inserts as the first child
+      .attr("href", bg) // Path to your PNG
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("class", "bg")
+      
+      // .attr("transform", "scale(0.95)")
+      .attr("width", "100%")
+      .attr("height", "100%");
     
-    // get the svg container
-    const svgContainer = document.querySelector(".svg-container-coast");
-    
-    // add the svg
-    svgContainer.appendChild( svg );
-    
+      // Append the SVG to the DOM
+    const svgContainer = document.querySelector("#svg-render-coast");
+
+    svgContainer.appendChild(svg);
   })
   
   .then( data => {
-    // get the svg, overlay item
-    const svg = document.body.querySelector("#overlay-item");
+    // select the added svg
+    const d3Svg = d3.select('#overlay-item');
     
-    // get the svg for d3
-    const d3Svg = d3.select("#overlay-item");
-    const svgHeight = d3Svg.node().getBBox().height;
-    
-    // add slider to the bottom
-    const sliderScale = d3.scaleLinear()
-      .domain( [0, 4000] )
-      .range( [0, 600] );
+    // select the bgPng
+    const bg = d3.select('.bg');
 
-    d3Svg.append("line")
-      .attr("x1", sliderScale.range()[0])
-      .attr("x2", sliderScale.range()[1])
-      .attr("y1", svgHeight)
-      .attr("y2", svgHeight)
-      .attr("stroke", "black")
-      .attr("stroke-width", 2);
-
-    // Append a draggable handle (circle)
-    const handle = d3Svg.append("circle")
-      .attr("cx", sliderScale(0))  // Initial position (for value 50)
-      .attr("cy", svgHeight)
-      .attr("r", 10)
-      .attr("fill", "blue")
-      .call(d3.drag()
-          .on("drag", function (event) {
-              let newX = event.x;
-
-              // Restrict movement within the slider range
-              if (newX < sliderScale.range()[0]) newX = sliderScale.range()[0];
-              if (newX > sliderScale.range()[1]) newX = sliderScale.range()[1];
-
-              d3.select(this).attr("cx", newX);
-
-              // Update value based on position
-              const value = sliderScale.invert(newX);
-              position = Math.round( value );
-              updatePosition();
-              
-          })
-      );
-
-
-    // get the info
+    // select the groups with ids that match the cms titles
+    // get the data from the cms
     const info = getInfo();
-
-    // get the blur image
-    const blurLayer = svg.querySelector("#svg-blur-image");
+    // console.log("info: ", info);
     
-    // get the buttons
-    const buttonsDom = svg.querySelectorAll(".button");
-    const buttons = [...buttonsDom];
+    // get the matches
+    info.forEach(( item ) => {
+      const match = d3Svg.select(`#${item.title}`);
+      // console.log("list of items", `#${item.title}`);
+      if( !match.empty() ) {
+        // console.log("lok at matches: ", match, item.title);
+        match.attr("class", "script-interact");
+      }
+    });
 
-    // Loop through your 'info' array and attach the event handler to the matching buttons
-    info.forEach( (element) => {
-      // Match the button to the info id
-      const match = buttons.find((e) => e.id === element.idMatch);
-      
-      // Add the match to the element object 
-      element.object = match;
+    const theGroups = d3.selectAll(".script-interact");
     
-      // then add the event listeners
-      // detect when mouse is over item
-      info.forEach( ( element ) => {
-        // match the button to the info id
-        const match = buttons.find((e) => e.id === element.idMatch);
-        
-        // add the match to the info 
-        element.object = match;
-  
-        match.addEventListener("mouseover", () => {
-          // remove mask before setting new one
-          blurLayer.removeAttribute('mask');
-  
-          // get the id and replace the mask url
-          blurLayer.setAttribute('mask', `url(#mask_${match.id})`);
-          
-          // make the blur layer visible, with an ease animation in css
-          blurLayer.style.opacity = "100";
-          
-          // make the card visible
-          card.style.display = "block"
-          card.innerText = element.body;
-  
-        });
-        
-        match.addEventListener("mouseout", () => {
-          
-          // make the blur layer dissapear with an eas out in css
-          blurLayer.style.opacity = "0";
-  
-          // make the card dissapear
-          card.style.display = "none";
-  
+    // make all buttons go transparent?
+    function fadeOut( exclude ) {
+      const excludeNode = exclude.node();
+      theGroups
+        .transition()
+        .duration(1000) 
+        .ease(d3.easeLinear) 
+        .style("opacity", function(d, i) {
+          // If the element is the one to exclude, keep full opacity
+          return this === excludeNode ? 1 : 0.2;
         }); 
-      });
+    }
 
-     
-    });
-
+    function fadeIn() {
+      theGroups
+        .transition()
+        .duration(1000) 
+        .ease(d3.easeLinear) 
+        .style("opacity", 1); 
+    }  
     
+    theGroups.each(function() {
+      const element = d3.select(this);
+      
+      // select the card element from cards
+      const card = document.querySelector(`.card-coast#${element.attr("id")}`);
+      
+      // Determine event type based on device type
+      const enter = isTouchDevice ? "click" : "mouseenter";
+      const leave = isTouchDevice ? "click" : "mouseleave"; 
     
-    // scroll timeline elements
-    const updatePosition = (delta) => {
-      // normalize the scroll
-      const normPos = position / maxScroll;
-      
-      // make the date range
-      const date = (normPos * 22) + 2000;
-      
-      // update the d3 slider
-      handle.attr("cx", `${ (position / 4000) * 600 }` )
-
-      // get the buttons dates
-      info.forEach( (item) => {
-        // get just the year
-        const floatDate = item.date.split(' ')[2];
+      element
+        .on(enter, function(event) {
+          event.stopPropagation(); // Prevent event from bubbling up
+          if (cardHoverState === 0) {
+            
+            // Fade out background
+            bg.transition()
+              .duration(1000)
+              .ease(d3.easeLinear)
+              .style("opacity", 0.2);
+    
+            // Fade out all buttons
+            fadeOut( element );
+    
+            // Set the global state
+            cardHoverState = 1;
+          }
+        })
+        .on(leave, function(event) {
+          event.stopPropagation(); // Prevent event from bubbling up
+          if (cardHoverState === 1) {
+            // Hide the blur layer and reset the stroke and opacity
+            bg.transition()
+              .duration(1000)
+              .ease(d3.easeLinear)
+              .style("opacity", 1);
+    
+            fadeIn();
+            fadeOutCards();
+            cardHoverState = 0;
+          }
+        })
+        .on("click", function(event){
+          event.stopPropagation(); // Prevent event from bubbling up
+          if(cardHoverState === 1) {
+            // Make the card visible
+            card.style.opacity = "1";
+            console.log("make it vivibfdsbjafkld", card)
+            cardHoverState = 2;
+          }
+        })
         
-        // compare dates and update accordingly, the element is in info as 'object'
-        if(date >= floatDate) {
-          item.object.style.display = "block"
-        } else {
-          item.object.style.display = "none"
-        }
-
-      });
-
-    };
-
-    
-    // Add event listeners for mouse, touch, or key inputs
-    window.addEventListener('wheel', (event) => {
-      updatePosition( clip( event.deltaY ) );
-    });
-    
-    // capture start Y 
-    let lastExecution = 0;
-    const throttleTime = 100;  // Throttle time in milliseconds 
-    let startY = 0;
-    
-    window.addEventListener( 'touchstart', ( event ) => {
-      
-      startY = event.touches[0].clientY;
-
-    });
-
-    // update the touch(mobile) move
-    window.addEventListener('touchmove', (event) => {
-      const now = Date.now();
-      if (now - lastExecution >= throttleTime) {
         
-        // event.preventDefault();  // Prevent page from scrolling
-        const deltaY = startY - event.touches[0].clientY;
-        updatePosition( clip( deltaY ) );
-        lastExecution = now;
+    });
+  
+    // add event listener to close full-story on click
+    theBody.addEventListener("click", (event) => {
+      if (cardHoverState === 2) {
+        // Hide the blur layer and reset the stroke and opacity
+        bg.transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .style("opacity", 1);
 
+        fadeIn();
+
+        fadeOutCards();
+        cardHoverState = 0;
       } 
-    });
-  }
+    });  
 
-)
-.catch( error => console.error("Error loading the SVG:", error) );
+  })
+.catch(error => console.error("Error loading the SVG:", error));
+
 
 
 
