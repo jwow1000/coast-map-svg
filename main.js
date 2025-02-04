@@ -30,6 +30,7 @@ d3.xml( overlay )
     const svg = data.documentElement;
     svg.id = "overlay-item"; // Assign an ID for reference
     
+
     // Select the SVG element using D3 to use D3 methods
     const d3Svg = d3.select(svg);
 
@@ -45,7 +46,7 @@ d3.xml( overlay )
       .attr("height", "100%");
     
       // Append the SVG to the DOM
-    const svgContainer = document.querySelector("#svg-render-coast");
+    const svgContainer = document.querySelector(".svg-render-coast");
 
     svgContainer.appendChild(svg);
   })
@@ -165,6 +166,13 @@ d3.xml( overlay )
         cardHoverState = 0;
       } 
     });  
+
+    // make it scale
+    d3.select("#overlay-item") // Select the existing SVG
+      .attr("width", "100%") // Make it responsive
+      .attr("height", "100%")
+      .attr("viewBox", "0 0 841.89 595.28") // Adjust based on original SVG dimensions
+      .attr("preserveAspectRatio", "xMidYMid meet"); // Maintain aspect ratio
 
   })
 .catch(error => console.error("Error loading the SVG:", error));
