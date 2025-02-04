@@ -103,8 +103,8 @@ d3.xml( overlay )
       const card = document.querySelector(`.card-coast#${element.attr("id")}`);
       
       // Determine event type based on device type
-      const enter = isTouchDevice ? "click" : "mouseenter";
-      const leave = isTouchDevice ? "click" : "mouseleave"; 
+      const enter = isTouchDevice ? "touchstart" : "mouseenter";
+      const leave = isTouchDevice ? "touchstart" : "mouseleave"; 
     
       element
         .on(enter, function(event) {
