@@ -1,4 +1,5 @@
-import { getInfo } from "./helpers/fetch";
+import { getInfo } from "./helpers/fetch.js";
+import setupInteractions from "./helpers/interactions.js";
 import * as d3 from 'd3';
 
 const overlay = "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a0ef1da7909405fe4c1f4f_MapA-dynamic-overlay.svg";
@@ -17,12 +18,6 @@ const fadeOutCards = () => {
     item.style.opacity = '0';
   });
 }
-
-// detect if a touch device
-const isTouchDevice = 
-  'ontouchstart' in window || 
-  (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches);
-console.log("touchh?", isTouchDevice)
 
 d3.xml( overlay )
   .then(data => {
@@ -96,76 +91,78 @@ d3.xml( overlay )
         .style("opacity", 1); 
     }  
     
-    theGroups.each(function() {
-      const element = d3.select(this);
+    setupInteractions(theGroups, bg, fadeOut, fadeIn, fadeOutCards, cardHoverState);
+
+    // theGroups.each(function() {
+    //   const element = d3.select(this);
       
-      // select the card element from cards
-      const card = document.querySelector(`.card-coast#${element.attr("id")}`);
+    //   // select the card element from cards
+    //   const card = document.querySelector(`.card-coast#${element.attr("id")}`);
       
-      // Determine event type based on device type
-      const enter = isTouchDevice ? "pointerdown" : "mouseenter";
-      const leave = isTouchDevice ? "pointerdown" : "mouseleave"; 
+    //   // Determine event type based on device type
+    //   const enter = isTouchDevice ? "pointerdown" : "mouseenter";
+    //   const leave = isTouchDevice ? "pointerdown" : "mouseleave"; 
     
-      element
-        .on(enter, function(event) {
-          event.stopPropagation(); // Prevent event from bubbling up
-          if (cardHoverState === 0) {
+    //   element
+    //     .on(enter, function(event) {
+    //       event.stopPropagation(); // Prevent event from bubbling up
+    //       if (cardHoverState === 0) {
             
-            // Fade out background
-            bg.transition()
-              .duration(1000)
-              .ease(d3.easeLinear)
-              .style("opacity", 0.2);
+    //         // Fade out background
+    //         bg.transition()
+    //           .duration(1000)
+    //           .ease(d3.easeLinear)
+    //           .style("opacity", 0.2);
     
-            // Fade out all buttons
-            fadeOut( element );
+    //         // Fade out all buttons
+    //         fadeOut( element );
     
-            // Set the global state
-            cardHoverState = 1;
-          }
-        })
-        .on(leave, function(event) {
-          event.stopPropagation(); // Prevent event from bubbling up
-          if (cardHoverState === 1) {
-            // Hide the blur layer and reset the stroke and opacity
-            bg.transition()
-              .duration(1000)
-              .ease(d3.easeLinear)
-              .style("opacity", 1);
+    //         // Set the global state
+    //         cardHoverState = 1;
+    //       }
+    //     })
+    //     .on(leave, function(event) {
+    //       event.stopPropagation(); // Prevent event from bubbling up
+    //       if (cardHoverState === 1) {
+    //         // Hide the blur layer and reset the stroke and opacity
+    //         bg.transition()
+    //           .duration(1000)
+    //           .ease(d3.easeLinear)
+    //           .style("opacity", 1);
     
-            fadeIn();
-            fadeOutCards();
-            cardHoverState = 0;
-          }
-        })
-        .on("click", function(event){
-          event.stopPropagation(); // Prevent event from bubbling up
-          if(cardHoverState === 1) {
-            // Make the card visible
-            card.style.opacity = "1";
-            console.log("make it vivibfdsbjafkld", card)
-            cardHoverState = 2;
-          }
-        })
+    //         fadeIn();
+    //         fadeOutCards();
+    //         cardHoverState = 0;
+    //       }
+    //     })
+    //     .on("click", function(event){
+    //       event.stopPropagation(); // Prevent event from bubbling up
+    //       if(cardHoverState === 1) {
+    //         // Make the card visible
+    //         card.style.opacity = "1";
+    //         console.log("make it vivibfdsbjafkld", card)
+    //         cardHoverState = 2;
+    //       }
+    //     })
         
         
-    });
+    // });
   
-    // add event listener to close full-story on click
-    theBody.addEventListener("click", (event) => {
-      if (cardHoverState === 2) {
-        // Hide the blur layer and reset the stroke and opacity
-        bg.transition()
-          .duration(1000)
-          .ease(d3.easeLinear)
-          .style("opacity", 1);
+    // // add event listener to close full-story on click
+    // theBody.addEventListener("click", (event) => {
+    //   if (cardHoverState === 2) {
+    //     // Hide the blur layer and reset the stroke and opacity
+    //     bg.transition()
+    //       .duration(1000)
+    //       .ease(d3.easeLinear)
+    //       .style("opacity", 1);
 
-        fadeIn();
+    //     fadeIn();
 
-        fadeOutCards();
-        cardHoverState = 0;
-      } 
-    });  
+    //     fadeOutCards();
+    //     cardHoverState = 0;
+    //   } 
+    // });  
 
     // make it scale
     d3.select("#overlay-item") // Select the existing SVG
