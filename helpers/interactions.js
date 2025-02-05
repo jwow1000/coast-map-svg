@@ -6,7 +6,25 @@ const isTouchDevice =
   navigator.maxTouchPoints > 0 || 
   window.matchMedia("(pointer: coarse)").matches;
 
+
 export default function setupInteractions(theGroups, bg, fadeOut, fadeIn, fadeOutCards, cardHoverState) {
+  const click = document.querySelector(".click-mask");
+  click.addEventListener("click", function(event){
+    event.stopPropagation();
+    if (cardHoverState === 2) {
+        fadeOutCards();
+        click.style.pointerEvents = 'none';
+        bg.transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .style("opacity", 1);
+
+        fadeIn();
+        fadeOutCards();
+        cardHoverState = 0; 
+    } 
+  });
+
   theGroups.each(function() {
       const element = d3.select(this);
       const cardId = element.attr("id");
@@ -34,7 +52,7 @@ export default function setupInteractions(theGroups, bg, fadeOut, fadeIn, fadeOu
                       fadeOutCards();
                       if (card) {
                           card.style.opacity = "1";
-                          card.style.display = "block";
+                          card.style.display = "flex";
                       }
                       cardHoverState = 2;
                   }
@@ -70,9 +88,11 @@ export default function setupInteractions(theGroups, bg, fadeOut, fadeIn, fadeOu
                   event.stopPropagation();
                   if (cardHoverState === 1) {
                       fadeOutCards();
+                      // turn on click capture layer
+                      click.style.pointerEvents = 'auto';
                       if (card) {
                           card.style.opacity = "1";
-                          card.style.display = "block";
+                          card.style.display = "flex";
                       }
                       cardHoverState = 2;
                   }

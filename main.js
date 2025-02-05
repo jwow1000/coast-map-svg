@@ -2,6 +2,35 @@ import { getInfo } from "./helpers/fetch.js";
 import setupInteractions from "./helpers/interactions.js";
 import * as d3 from 'd3';
 
+
+// dynamically add classes from cms
+document.querySelectorAll('.card-coast').forEach(item => {
+  let align = item.getAttribute('data-position');
+  // default is left if there is no data
+  if ( align ) {
+    item.classList.add( align === 'right' ? 'right-align' : 'left-align')
+  } else {
+    item.classList.add('left');
+  }
+  
+});
+
+// create a click capture mask
+const clickMask = document.createElement('div');
+clickMask.classList.add('click-mask');
+clickMask.style.pointerEvents = 'none';
+clickMask.style.opacity = '0';
+clickMask.style.zIndex = 100;
+clickMask.style.position = 'fixed';
+clickMask.style.top = '0';
+clickMask.style.left = '0';
+clickMask.style.width = '100%';
+clickMask.style.height = '100vh';
+
+document.querySelector('body').appendChild( clickMask );
+
+
+
 const overlay = "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a0ef1da7909405fe4c1f4f_MapA-dynamic-overlay.svg";
 const bg = "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/679a66ef42d3335f41be517a_mapA-static-bg.jpg"
 
