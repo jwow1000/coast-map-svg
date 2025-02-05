@@ -1,5 +1,6 @@
 import { getInfo } from "./helpers/fetch.js";
 import setupInteractions from "./helpers/interactions.js";
+// import { appendShape } from "./helpers/addShapes.js";
 import * as d3 from 'd3';
 
 
@@ -98,7 +99,8 @@ d3.xml( overlay )
     });
 
     const theGroups = d3.selectAll(".script-interact");
-    
+    // appendShape( theGroups );
+
     // make all buttons go transparent?
     function fadeOut( exclude ) {
       const excludeNode = exclude.node();
