@@ -53,12 +53,28 @@ const allCards = document.querySelectorAll(".card-coast");
 const svgContainer = document.querySelector(".svg-render-coast");
 const d3SvgContainer = d3.select(".svg-render-coast");
 
+function boldDateSelect( sel ) {
+  console.log("bold triggered?")
+  const buttons = dates.querySelectorAll('.coast-data-button'); 
+  buttons.forEach(el => {
+    console.log("what is this: ", el)
+    el.classList.remove('selected');
+  });
+  
+  sel.classList.add('selected');
+  
+}
+
 // add action to the date buttons
 let transition = false;
 dates.addEventListener("click", (event) => {
   const e = event.target;
+  console.log("click triggered?")
+  
   if( e.hasAttribute('data-date') && transition === false ) {
     transition = true;
+    boldDateSelect(e);
+
     const showDate = e.getAttribute('data-date');
     d3SvgContainer
       .transition()
