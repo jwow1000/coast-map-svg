@@ -54,10 +54,8 @@ const svgContainer = document.querySelector(".svg-render-coast");
 const d3SvgContainer = d3.select(".svg-render-coast");
 
 function boldDateSelect( sel ) {
-  console.log("bold triggered?")
-  const buttons = dates.querySelectorAll('.coast-data-button'); 
+  const buttons = dates.querySelectorAll('.coast-date-button'); 
   buttons.forEach(el => {
-    console.log("what is this: ", el)
     el.classList.remove('selected');
   });
   
@@ -69,7 +67,6 @@ function boldDateSelect( sel ) {
 let transition = false;
 dates.addEventListener("click", (event) => {
   const e = event.target;
-  console.log("click triggered?")
   
   if( e.hasAttribute('data-date') && transition === false ) {
     transition = true;
