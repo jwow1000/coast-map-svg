@@ -26,17 +26,17 @@ function removeSVG() {
 
 const assets = {
   a: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a0ef1da7909405fe4c1f4f_MapA-dynamic-overlay.svg",
-    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/679a66ef42d3335f41be517a_mapA-static-bg.jpg"
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b664156e0b377f188f82a9_MapA-interact.svg",
+    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/679a66ef42d3335f41be517a_mapA-static-bg.jpg",
   },
   b: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a4ef27196f8244c5c6fc5b_MapB_Overlay.svg",
-    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a4ef27e4650eabebbfaef3_MapB_BG.jpg"
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b65999f23777d7c9c2b4ea_MapB-interact.svg",
+    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a4ef27e4650eabebbfaef3_MapB_BG.jpg",
   },
   c: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a4ef8214eee38f5122f0d8_MapC_Overlay.svg",
-    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a52d02cf6e8d6ddd6d0e66_MapC_BG.jpg"
-  }
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b659993e9e6eede1f2e4a6_MapC-interact.svg",
+    bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a52d02cf6e8d6ddd6d0e66_MapC_BG.jpg",
+  },
 }
 
 
@@ -92,7 +92,6 @@ dates.addEventListener("click", (event) => {
   }
 });
 
-
 const fadeOutCards = () => {
   allCards.forEach((item) => {
     item.style.opacity = '0';
@@ -106,7 +105,6 @@ function renderMap( overlay, bg ) {
       // Get the root SVG element from the loaded file
       const svg = data.documentElement;
       svg.id = `overlay-item`; // Assign an ID for reference
-      
   
       // Select the SVG element using D3 to use D3 methods
       const d3Svg = d3.select(svg);
@@ -148,13 +146,25 @@ function renderMap( overlay, bg ) {
           match.attr("class", "script-interact");
         }
       });
-  
+      
+      // select all the interact groups
       const theGroups = d3.selectAll(".script-interact");
-      // appendShape( theGroups );
-  
+      // select all the markers
+      const markers = d3.select("#markers");
+      markers
+        .style("pointer-events", "none");
+
+      console.log("martkkre", markers)
       // make all buttons go transparent?
       function fadeOut( exclude ) {
         const excludeNode = exclude.node();
+        
+        markers
+          .transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .style("opacity", 0);
+
         theGroups
           .transition()
           .duration(1000) 
@@ -166,6 +176,12 @@ function renderMap( overlay, bg ) {
       }
   
       function fadeIn() {
+        markers
+          .transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .style("opacity", 1);
+
         theGroups
           .transition()
           .duration(1000) 
