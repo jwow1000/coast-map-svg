@@ -65,29 +65,44 @@ dates.addEventListener("click", (event) => {
   if( e.hasAttribute('data-date') && transition === false ) {
     transition = true;
     boldDateSelect(e);
-    const oldSvg = d3.select(`#overlay-item-${activeSvg}`);;
-    activeSvg = e.getAttribute('data-date');
-    console.log("showdate: ", activeSvg)
-    const showSel = d3.select(`#overlay-item-${activeSvg}`);
 
+    const newActiveSvg = e.getAttribute('data-date');
+    
+    // Don't do anything if clicking the already active date
+    if (newActiveSvg === activeSvg) {
+      transition = false;
+      return;
+    }
+    
+    const oldSvg = d3.select(`#overlay-item-${activeSvg}`);
+    const newSvg = d3.select(`#overlay-item-${newActiveSvg}`);
+    
+    // Bring the new SVG to front
+    newSvg.style("z-index", "10");
+    oldSvg.style("z-index", "5");
+    
+    // Fade out old, fade in new
     oldSvg
       .transition()
       .duration(1000) 
       .ease(d3.easeLinear) 
-      .style("opacity", 0); 
+      .style("opacity", 0)
+      .on("end", function() {
+        oldSvg.style("display", "none");
+        oldSvg.style("z-index", "0");
+        transition = false;
+      });
     
-    showSel
+    newSvg
       .style("display", "block")
       .transition()
       .duration(1000) 
       .ease(d3.easeLinear) 
-      .style("opacity", 1); 
+      .style("opacity", 1);
     
-    setTimeout(function delay() {
-      oldSvg.style("display", "none");
-      transition = false;    
-    }, 1000);
-      
+    // Update active SVG reference
+    activeSvg = newActiveSvg;
+
   }
 });
 
@@ -159,13 +174,14 @@ function renderMap( overlay, bg, strId ) {
       });
       
       // select all the interact groups
-      const theGroups = d3.selectAll(".script-interact");
+      const theGroups = d3Svg.selectAll(".script-interact");
       // select all the markers
-      const markers = d3.select("#markers");
+      const markers = d3Svg.select("#markers");
       markers
         .style("pointer-events", "none");
-
-      // make all buttons go transparent?
+      console.log("markers: ", markers)
+      
+      // make all buttons go transparent
       function fadeOut( exclude ) {
         const excludeNode = exclude.node();
         
@@ -214,7 +230,12 @@ function renderMap( overlay, bg, strId ) {
 }
 
 // init all maps 
+
 renderMap(assets['a'].overlay, assets['a'].bg, 'a');
 renderMap(assets['b'].overlay, assets['b'].bg, 'b');
 renderMap(assets['c'].overlay, assets['c'].bg, 'c');
 
+// Initial setup - only show the active SVG (which starts as 'a')
+d3.select(`#overlay-item-a`).style("opacity", 1).style("display", "block");
+d3.select(`#overlay-item-b`).style("opacity", 0).style("display", "none");
+d3.select(`#overlay-item-c`).style("opacity", 0).style("display", "none");
