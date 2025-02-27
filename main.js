@@ -16,25 +16,17 @@ document.querySelectorAll('.card-coast').forEach(item => {
   
 });
 
-// remove previous svg
-function removeSVG() {
-  const oldSvg = document.querySelector("#overlay-item");
-  if (oldSvg) {
-    oldSvg.remove();
-  }
-}
-
 const assets = {
   a: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b664156e0b377f188f82a9_MapA-interact.svg",
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b664156e0b377f188f82a9_a4400b660c3a5efa33f16bd689f60ffc_MapA-interact.svg",
     bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/679a66ef42d3335f41be517a_mapA-static-bg.jpg",
   },
   b: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b65999f23777d7c9c2b4ea_MapB-interact.svg",
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b65999f23777d7c9c2b4ea_902d988336e74b48d9ebdbec861eea54_MapB-interact.svg",
     bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a4ef27e4650eabebbfaef3_MapB_BG.jpg",
   },
   c: {
-    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b659993e9e6eede1f2e4a6_MapC-interact.svg",
+    overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b659993e9e6eede1f2e4a6_1a3626c35d20cdd675b49765948c7184_MapC-interact.svg",
     bg: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67a52d02cf6e8d6ddd6d0e66_MapC_BG.jpg",
   },
 }
@@ -65,29 +57,36 @@ function boldDateSelect( sel ) {
 
 // add action to the date buttons
 let transition = false;
+let activeSvg = 'a';
+
 dates.addEventListener("click", (event) => {
   const e = event.target;
   
   if( e.hasAttribute('data-date') && transition === false ) {
     transition = true;
     boldDateSelect(e);
+    const oldSvg = d3.select(`#overlay-item-${activeSvg}`);;
+    activeSvg = e.getAttribute('data-date');
+    console.log("showdate: ", activeSvg)
+    const showSel = d3.select(`#overlay-item-${activeSvg}`);
 
-    const showDate = e.getAttribute('data-date');
-    d3SvgContainer
+    oldSvg
       .transition()
       .duration(1000) 
       .ease(d3.easeLinear) 
       .style("opacity", 0); 
     
-    setTimeout(function trigger() {
-      renderMap( assets[showDate].overlay, assets[showDate].bg);
-      d3SvgContainer
-        .transition()
-        .duration(1000) 
-        .ease(d3.easeLinear) 
-        .style("opacity", 1); 
+    showSel
+      .style("display", "block")
+      .transition()
+      .duration(1000) 
+      .ease(d3.easeLinear) 
+      .style("opacity", 1); 
+    
+    setTimeout(function delay() {
+      oldSvg.style("display", "none");
       transition = false;    
-    }, 1000)
+    }, 1000);
       
   }
 });
@@ -98,14 +97,26 @@ const fadeOutCards = () => {
   });
 }
 
-function renderMap( overlay, bg ) {
-  removeSVG();
+function renderMap( overlay, bg, strId ) {
   d3.xml( overlay )
     .then(data => {
       // Get the root SVG element from the loaded file
       const svg = data.documentElement;
-      svg.id = `overlay-item`; // Assign an ID for reference
-  
+      svg.id = `overlay-item-${strId}`; // Assign an ID for reference
+      
+      // Set positioning - this is the key change
+      svg.style.position = "absolute";
+      svg.style.top = "0";
+      svg.style.right = "0";
+      svg.style.width = "100%";
+      svg.style.height = "100%";
+      
+      // Set initial display based on active state
+      if (strId !== activeSvg) {
+        svg.style.opacity = "0";
+        svg.style.display = "none";
+      }
+
       // Select the SVG element using D3 to use D3 methods
       const d3Svg = d3.select(svg);
   
@@ -114,7 +125,7 @@ function renderMap( overlay, bg ) {
         .attr("href", bg) // Path to your PNG
         .attr("x", 0)
         .attr("y", 0)
-        .attr("class", `bg`)
+        .attr("class", `bg-${strId}`)
         
         // .attr("transform", "scale(0.95)")
         .attr("width", "100%")
@@ -127,10 +138,10 @@ function renderMap( overlay, bg ) {
     
     .then( data => {
       // select the added svg
-      const d3Svg = d3.select('#overlay-item');
+      const d3Svg = d3.select(`#overlay-item-${strId}`);
       
       // select the bgPng
-      const bg = d3.select('.bg');
+      const bg = d3.select(`.bg-${strId}`);
   
       // select the groups with ids that match the cms titles
       // get the data from the cms
@@ -154,7 +165,6 @@ function renderMap( overlay, bg ) {
       markers
         .style("pointer-events", "none");
 
-      console.log("martkkre", markers)
       // make all buttons go transparent?
       function fadeOut( exclude ) {
         const excludeNode = exclude.node();
@@ -203,6 +213,8 @@ function renderMap( overlay, bg ) {
 
 }
 
-// init with map a
+// init all maps 
 renderMap(assets['a'].overlay, assets['a'].bg, 'a');
+renderMap(assets['b'].overlay, assets['b'].bg, 'b');
+renderMap(assets['c'].overlay, assets['c'].bg, 'c');
 
