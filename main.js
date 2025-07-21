@@ -16,6 +16,7 @@ document.querySelectorAll('.card-coast').forEach(item => {
   
 });
 
+
 const assets = {
   a: {
     overlay: "https://cdn.prod.website-files.com/66e5c9799b48938aa3491deb/67b664156e0b377f188f82a9_a4400b660c3a5efa33f16bd689f60ffc_MapA-interact.svg",
@@ -179,7 +180,7 @@ function renderMap( overlay, bg, strId ) {
       const markers = d3Svg.select("#markers");
       markers
         .style("pointer-events", "none");
-      console.log("markers: ", markers)
+      // console.log("markers: ", markers)
       
       // make all buttons go transparent
       function fadeOut( exclude ) {
